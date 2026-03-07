@@ -69,7 +69,12 @@ async function getFallbackMeta() {
   return _fallbackCache;
 }
 
+// REVIEW MODE: set to 'morning', 'afternoon', or 'evening' to lock the period.
+// Set to null to restore normal time-of-day behaviour before merging.
+export const REVIEW_PERIOD = 'evening';
+
 function getPeriod(hour) {
+  if (REVIEW_PERIOD) return REVIEW_PERIOD;
   if (hour >= 5 && hour < 12) return 'morning';
   if (hour >= 12 && hour < 17) return 'afternoon';
   return 'evening';
@@ -83,7 +88,7 @@ async function getNextFallback() {
   const index = (await storage.get(key)) ?? 0;
   const photo = photos[index % photos.length];
   await storage.set(key, (index + 1) % photos.length);
-  return photo;
+  return { ...photo, _index: index % photos.length };
 }
 
 // ─── Unsplash API ──────────────────────────────────────────────────────────
@@ -151,13 +156,14 @@ async function getNextFromApi(apiKey) {
  */
 export async function getNextImage() {
   const preloaded = await storage.get('preloadedPhoto');
-  if (preloaded) {
+  if (preloaded && !REVIEW_PERIOD) {
     await storage.remove('preloadedPhoto');
     preloadNextImage();
     return preloaded;
   }
+  if (REVIEW_PERIOD) await storage.remove('preloadedPhoto');
   const photo = await fetchNextPhoto();
-  preloadNextImage();
+  if (!REVIEW_PERIOD) preloadNextImage();
   return photo;
 }
 
