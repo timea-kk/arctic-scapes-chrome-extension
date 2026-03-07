@@ -56,16 +56,26 @@ const QUERIES = {
     'nordkapp norway arctic dawn',
   ],
   afternoon: [
-    'svalbard arctic landscape winter daylight',
-    'iceland fjord blue sky winter afternoon',
-    'norway mountains winter clear afternoon',
-    'greenland iceberg fjord daylight',
-    'faroe islands landscape afternoon',
-    'lofoten islands winter daylight',
-    'iceland highland winter blue sky',
-    'svalbard tundra winter afternoon',
-    'norway fjord winter clear day',
-    'iceland vatnajokull glacier afternoon',
+    'svalbard glacier ice snow blue sky',
+    'iceland glacier iceberg blue sky daylight',
+    'norway fjord snow ice clear blue sky',
+    'greenland iceberg fjord blue sky daylight',
+    'faroe islands cliffs ocean daylight',
+    'lofoten islands snow mountains sea daylight',
+    'iceland jokulsarlon iceberg lagoon blue sky',
+    'svalbard arctic ice snow clear day',
+    'norway lofoten winter snow mountains sea',
+    'antarctica iceberg turquoise water daylight',
+    'greenland glacier ice fjord daylight',
+    'iceland highlands glacier snow blue sky',
+    'svalbard polar bear ice snow daylight',
+    'norway fjord winter snow reflection blue sky',
+    'antarctica penguin ice daylight clear',
+    'iceland vatnajokull glacier ice blue sky',
+    'greenland arctic ocean iceberg daylight',
+    'faroe islands dramatic cliffs sea daylight',
+    'svalbard snowfield glacier arctic daylight',
+    'norway arctic archipelago snow ice clear',
   ],
   evening: [
     'aurora borealis dark night sky norway',
@@ -310,32 +320,15 @@ async function run() {
 
   let total = 0;
 
-  // 1. Replace flagged morning photos
-  const flaggedSlots = meta.morning
+  // 1. Replace afternoon photos that are duplicates of morning photos
+  const morningIds = new Set(meta.morning.map((p) => p.id));
+  const dupSlots = meta.afternoon
     .map((p, i) => ({ index: i, photo: p }))
-    .filter(({ photo }) => FLAGGED_MORNING_IDS.has(photo.id));
-  total += await replaceSlots(meta, 'morning', flaggedSlots, 'morning', 'MORNING FLAGGED', seen);
+    .filter(({ photo }) => morningIds.has(photo.id));
+  total += await replaceSlots(meta, 'afternoon', dupSlots, 'afternoon', 'AFTERNOON DUP WITH MORNING', seen);
 
-  // 2. Replace null-location photos in all three periods
-  for (const period of ['morning', 'afternoon', 'evening']) {
-    const queryKey = period === 'evening' ? 'evening' : period === 'afternoon' ? 'afternoon' : 'morning';
-    const nullSlots = meta[period]
-      .map((p, i) => ({ index: i, photo: p }))
-      .filter(({ photo }) => photo.location === null);
-    total += await replaceSlots(meta, period, nullSlots, queryKey, `${period.toUpperCase()} NULL LOCATIONS`, seen);
-  }
-
-  // 3. Add 10 Antarctica photos to afternoon
-  total += await addPhotos(meta, 'afternoon', 'antarctica_afternoon', 10, 'AFTERNOON ANTARCTICA', seen);
-
-  // 4. Top up afternoon to 40
-  total += await addPhotos(meta, 'afternoon', 'afternoon', Math.max(0, 40 - meta.afternoon.length), 'AFTERNOON FILL TO 40', seen);
-
-  // 5. Add 10 Antarctica photos to evening
-  total += await addPhotos(meta, 'evening', 'antarctica_evening', 10, 'EVENING ANTARCTICA', seen);
-
-  // 6. Top up evening to 40
-  total += await addPhotos(meta, 'evening', 'evening', Math.max(0, 40 - meta.evening.length), 'EVENING FILL TO 40', seen);
+  // 2. Top up afternoon to 50
+  total += await addPhotos(meta, 'afternoon', 'afternoon', Math.max(0, 50 - meta.afternoon.length), 'AFTERNOON FILL TO 50', seen);
 
   fs.writeFileSync(META_PATH, JSON.stringify(meta, null, 2));
   console.log(`\n${'─'.repeat(60)}`);
