@@ -3,11 +3,9 @@ name: CI / CD
 # When this pipeline runs:
 # - On every push to the main branch
 # - On every pull request that targets main
+# Paused — run manually from the Actions tab when ready to submit to the Chrome Web Store
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
 
