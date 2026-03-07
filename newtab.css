@@ -1,0 +1,156 @@
+/* ─── Tokens ─────────────────────────────────────────────────────────────── */
+:root {
+  --font-primary: 'Plus Jakarta Sans', sans-serif;
+  --color-bg: #0b1a2b;
+}
+
+/* ─── Reset & base ───────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--color-bg);
+  font-family: var(--font-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Background layers ──────────────────────────────────────────────────── */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  will-change: opacity;
+  transition: opacity 0.8s ease;
+}
+
+#bg-current {
+  z-index: 1;
+  opacity: 0; /* starts hidden, fades in once image is ready */
+}
+
+#bg-next {
+  z-index: 0;
+  opacity: 0; /* used for preloading — stays invisible */
+}
+
+/* ─── Bottom gradient overlay ────────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    to bottom,
+    transparent 40%,
+    rgba(0, 0, 0, 0.12) 65%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  pointer-events: none;
+}
+
+/* ─── Main content ───────────────────────────────────────────────────────── */
+.content {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+}
+
+/* ─── Clock + greeting ───────────────────────────────────────────────────── */
+.center-block {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #ffffff;
+  user-select: none;
+}
+
+.clock {
+  display: block;
+  font-size: 6rem;
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.greeting {
+  margin-top: 0.9rem;
+  font-size: 1.2rem;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  opacity: 0.88;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* ─── TEMP: review counter ───────────────────────────────────────────────── */
+#review-counter {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.5rem;
+  z-index: 10;
+  color: #ffffff;
+  font-family: var(--font-primary);
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 0.65;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+/* ─── Bottom-left: location + credit ────────────────────────────────────── */
+.bottom-left {
+  position: absolute;
+  bottom: 2rem;
+  left: 2.5rem;
+  color: #ffffff;
+  user-select: none;
+}
+
+.location {
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  opacity: 0.82;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  margin-bottom: 0.45rem;
+  /* Hidden by default — shown by JS when location data exists */
+  display: none;
+}
+
+.location.visible {
+  display: block;
+}
+
+.credit {
+  font-size: 0.8rem;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  opacity: 0.7;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+}
+
+.credit a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.credit a:hover {
+  opacity: 1;
+  border-color: rgba(255, 255, 255, 0.8);
+}

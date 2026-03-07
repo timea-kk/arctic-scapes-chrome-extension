@@ -1,0 +1,122 @@
+name: CI / CD
+
+# When this pipeline runs:
+# - On every push to the main branch
+# - On every pull request that targets main
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  # ─── These two jobs run in parallel ────────────────────────────────────────
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Check for code style problems — unused variables, bad patterns, inconsistencies
+      - name: Lint
+        run: npm run lint
+
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Run the automated test suite with coverage reporting
+      - name: Run tests
+        run: npm run test:coverage
+
+      # Send coverage results to Codecov so you can track them over time
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+
+  # ─── Package waits for both lint and test to pass ──────────────────────────
+
+  package:
+    name: Package Extension
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Bundle everything the extension needs into a ZIP
+      # This is what gets submitted to the Chrome Web Store
+      - name: Zip extension
+        run: |
+          zip -r arctic-scapes.zip \
+            manifest.json \
+            newtab.html newtab.css newtab.js \
+            api.js greetings.js settings.js storage.js \
+            icons/ images/ options/
+
+      # Save the ZIP as a build artifact so the publish job can grab it
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: arctic-scapes
+          path: arctic-scapes.zip
+
+
+  # ─── Publish waits for package, only runs on main ──────────────────────────
+
+  publish:
+    name: Publish to Chrome Web Store
+    runs-on: ubuntu-latest
+    needs: package
+
+    # Only publish when pushing to main — not on pull requests
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: arctic-scapes
+
+      # Push the extension live to the Chrome Web Store
+      # The four secrets must be added in GitHub repo settings under Settings > Secrets:
+      #   CHROME_EXTENSION_ID   — from the Chrome Web Store developer dashboard
+      #   GOOGLE_CLIENT_ID      \
+      #   GOOGLE_CLIENT_SECRET   > from a Google Cloud OAuth2 app you create
+      #   GOOGLE_REFRESH_TOKEN  /
+      - name: Publish to Chrome Web Store
+        uses: trmcnvn/upload-google-chrome-extension@v2
+        with:
+          extension: ./arctic-scapes.zip
+          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
+        env:
+          CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}

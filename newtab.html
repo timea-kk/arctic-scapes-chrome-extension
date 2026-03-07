@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arctic Scapes</title>
+
+  <!-- Plus Jakarta Sans from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="newtab.css" />
+</head>
+<body>
+  <!-- Background layers: current visible image + next preloading beneath -->
+  <div id="bg-current" class="bg-layer" aria-hidden="true"></div>
+  <div id="bg-next" class="bg-layer" aria-hidden="true"></div>
+
+  <!-- Bottom gradient overlay for credit legibility -->
+  <div class="overlay" aria-hidden="true"></div>
+
+  <!-- TEMP: review counter -->
+  <div id="review-counter" aria-hidden="true"></div>
+
+  <!-- Main UI -->
+  <main class="content">
+    <!-- Clock + greeting, centred at ~45% from top -->
+    <div class="center-block">
+      <time id="clock" class="clock" datetime=""></time>
+      <p id="greeting" class="greeting"></p>
+    </div>
+
+    <!-- Location tag + photographer credit, bottom-left -->
+    <div class="bottom-left">
+      <p id="location" class="location" aria-live="polite"></p>
+      <p id="credit" class="credit" aria-live="polite"></p>
+    </div>
+  </main>
+
+  <script type="module" src="newtab.js"></script>
+</body>
+</html>
