@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const META_PATH = path.join(ROOT, 'images', 'fallback-meta.json');
+const META_PATH = path.join(ROOT, 'images', 'photos.json');
 const IMG_DIR = path.join(ROOT, 'images', 'morning');
 
 const UNSPLASH_KEY = process.env.UNSPLASH_KEY;

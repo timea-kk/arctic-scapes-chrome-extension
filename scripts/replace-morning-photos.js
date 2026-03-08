@@ -16,7 +16,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const META_PATH = path.join(ROOT, 'images', 'fallback-meta.json');
+const META_PATH = path.join(ROOT, 'images', 'photos.json');
 
 const API_KEY = process.argv[2] || process.env.UNSPLASH_KEY;
 const UTM = 'utm_source=arctic_scapes&utm_medium=referral';
@@ -131,7 +131,7 @@ async function run() {
   for (let i = 0; i < SLOTS_TO_REPLACE.length; i++) {
     const slot = SLOTS_TO_REPLACE[i];
     const photo = candidates[i];
-    const filename = `fallback-${String(slot).padStart(2, '0')}.jpg`;
+    const filename = `morning-${String(slot).padStart(2, '0')}.jpg`;
     const filepath = `images/morning/${filename}`;
     const dest = path.join(ROOT, 'images', 'morning', filename);
     const imgUrl = `${photo.urls.raw}&w=2560&q=85&fm=jpg&fit=crop&crop=entropy`;
@@ -145,8 +145,8 @@ async function run() {
   }
 
   fs.writeFileSync(META_PATH, JSON.stringify(meta, null, 2));
-  console.log('\nDone. fallback-meta.json updated.');
-  console.log('Replaced slots:', SLOTS_TO_REPLACE.map((s) => `fallback-${String(s).padStart(2, '0')}.jpg`).join(', '));
+  console.log('\nDone. photos.json updated.');
+  console.log('Replaced slots:', SLOTS_TO_REPLACE.map((s) => `morning-${String(s).padStart(2, '0')}.jpg`).join(', '));
 }
 
 run().catch((err) => {

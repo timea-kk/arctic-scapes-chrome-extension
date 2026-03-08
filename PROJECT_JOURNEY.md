@@ -16,7 +16,7 @@ Build journey for the Arctic Scapes Chrome extension — what we built, what bro
 - New tab page with full-viewport image, live clock, time-of-day greeting (with surprise variants), location tag, and photographer credit
 - `storage.js` — wraps `chrome.storage` / `localStorage` so the extension works identically in both environments
 - `api.js` — image sourcing, batch caching, background preloading so there's no flash between tabs
-- `greetings.js` — morning/afternoon/evening pools; 15% chance of a surprise; never repeats
+- `greetings.js` — morning/afternoon/evening pools; 30% chance of a surprise; never repeats
 - `settings.js` — reads/writes user prefs (clock format, seconds, funny greetings, API key)
 - Options page with 12h/24h toggle, seconds toggle, funny greetings toggle, API key input
 - `manifest.json` — Manifest V3, correct permissions, CSP for Google Fonts and Unsplash
@@ -80,10 +80,30 @@ Build journey for the Arctic Scapes Chrome extension — what we built, what bro
 
 ---
 
+## 📍 Milestone 4: Clock format toggle + tests + Chrome Web Store submission
+
+**What we built**
+- 24h / AM-PM clock format toggle added to the settings dropdown; AM/PM renders smaller and baseline-aligned in a `<span class="clock-period">`; the toggle automatically disables when the clock is hidden
+- `clock.js` extracted from `newtab.js` so `formatTime()` can be unit-tested without touching the DOM; 25 tests across `clock.test.js`, `api.test.js`, and `settings.test.js` using Vitest
+- Full codebase audit and cleanup before submission: removed unused exports, fixed ESLint config coverage, removed the REVIEW_PERIOD dev tool, and restored clean time-of-day photo logic
+
+**What went wrong**
+- The clock format listener originally used `{ capture: true }` to read the clock toggle's new state — but capture fires before the first listener flips `aria-checked`, so it was always reading the old value; fixed by removing capture and relying on registration order instead
+- Zipping from the wrong directory caused the archive to include the full absolute path rather than the extension files; fixed by running the zip command from inside the project folder
+
+**What the agent learned**
+- Extracting pure functions to their own files (no DOM imports) is what makes unit testing a JS browser extension tractable in Node
+- Event listener registration order is a reliable, readable alternative to capture phase tricks when two listeners on the same element need to run in sequence
+
+**Outcome:** ✅ Extension submitted to the Chrome Web Store. Pending Google review.
+
+---
+
 ## 📍 Where we are now
-Extension: Milestone 3 complete. 150 curated photos, settings panel, full-library review mode.
-Icons: Plain mountain silhouette — designer to refine.
-Next: Connect CI/CD secrets, submit to Chrome Web Store.
+Extension: Submitted to Chrome Web Store, awaiting review.
+Next: Wait for approval email, then share the store link.
+
+Last updated: Mar 2026.
 
 ---
 
@@ -91,4 +111,3 @@ Next: Connect CI/CD secrets, submit to Chrome Web Store.
 Add a new milestone when you start a new phase.
 What we built / what went wrong / what I learned / outcome (always last).
 Keep it scannable.
-Last updated: Mar 2026.

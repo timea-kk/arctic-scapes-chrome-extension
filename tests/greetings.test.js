@@ -1,3 +1,22 @@
+/**
+ * tests/greetings.test.js
+ *
+ * Automated tests for the greeting logic in greetings.js.
+ * Run with `npm test`.
+ *
+ * These tests check that getGreeting() returns the right kind of greeting
+ * for each time of day — morning, afternoon, and evening — when surprise
+ * greetings are turned off (so the result is predictable).
+ *
+ * They also verify that when surprise greetings are on, the function still
+ * returns a non-empty string (since the exact result is random, we can't
+ * check for a specific value — just that something came back).
+ *
+ * A note on sessionStorage: this code normally runs in a browser, where
+ * sessionStorage exists by default. Tests run in Node.js, which doesn't
+ * have it — so we create a minimal stand-in before the tests run.
+ */
+
 import { describe, it, expect, beforeAll } from 'vitest';
 import { getGreeting } from '../greetings.js';
 

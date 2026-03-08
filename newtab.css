@@ -1,3 +1,20 @@
+/*
+ * newtab.css
+ *
+ * All visual styles for the new tab page.
+ *
+ * Sections (in order):
+ *   Tokens          — shared colours and font variables
+ *   Reset & base    — removes browser defaults, sets up the full-screen layout
+ *   Background      — the photo layers that fill the screen
+ *   Overlay         — the gradient that darkens the bottom so text is readable
+ *   Main content    — the wrapper that sits on top of everything
+ *   Clock + greeting — centred block with the time and greeting text
+ *   Bottom-left     — location pin and photographer credit
+ *   Settings        — gear icon and dropdown panel (bottom-right)
+ *   Visibility      — hides elements when their toggle is off in settings
+ */
+
 /* ─── Tokens ─────────────────────────────────────────────────────────────── */
 :root {
   --font-primary: 'Plus Jakarta Sans', sans-serif;
@@ -74,6 +91,11 @@ body {
   text-align: center;
   color: #ffffff;
   user-select: none;
+  opacity: 0;
+}
+
+.center-block.ready {
+  opacity: 1;
 }
 
 .clock {
@@ -87,6 +109,16 @@ body {
     0 4px 24px rgba(0, 0, 0, 0.2);
 }
 
+/* AM/PM label sits beside the time digits at roughly a third of their size. */
+.clock-period {
+  font-size: 0.3em;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  vertical-align: baseline;
+  margin-left: 0.05em;
+  opacity: 0.85;
+}
+
 .greeting {
   margin-top: 0.9rem;
   font-size: 1.2rem;
@@ -94,21 +126,6 @@ body {
   letter-spacing: 0.01em;
   opacity: 0.88;
   text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
-}
-
-/* ─── TEMP: review counter ───────────────────────────────────────────────── */
-#review-counter {
-  position: fixed;
-  top: 1.25rem;
-  right: 1.5rem;
-  z-index: 10;
-  color: #ffffff;
-  font-family: var(--font-primary);
-  font-size: 0.8rem;
-  font-weight: 400;
-  opacity: 0.65;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
-  pointer-events: none;
 }
 
 /* ─── Bottom-left: location + credit ────────────────────────────────────── */
@@ -183,6 +200,13 @@ body {
   color: #ffffff;
 }
 
+/* Visible focus ring for keyboard navigation — appears when tabbing to the gear icon. */
+.settings-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
 .settings-dropdown {
   background: rgba(8, 18, 32, 0.75);
   backdrop-filter: blur(16px);
@@ -212,6 +236,11 @@ body {
   gap: 2.5rem;
 }
 
+.settings-row.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 .settings-header {
   font-size: 0.7rem;
   font-weight: 500;
@@ -230,7 +259,9 @@ body {
   user-select: none;
 }
 
-/* Toggle switch */
+/* Toggle switch — the on/off buttons inside the settings dropdown.
+   These are <button> elements styled as pill toggles. The circle slides
+   right when aria-checked="true". Focus ring shown for keyboard users. */
 .toggle {
   position: relative;
   width: 34px;
@@ -258,6 +289,12 @@ body {
 
 .toggle[aria-checked="true"] {
   background: #4a9eff;
+}
+
+/* Visible focus ring when navigating the toggles by keyboard. */
+.toggle:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 3px;
 }
 
 .toggle[aria-checked="true"]::after {
