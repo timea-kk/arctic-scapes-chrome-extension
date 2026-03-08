@@ -1,0 +1,29 @@
+name: Dev Build
+
+# Run manually from the Actions tab to get a zip for local Chrome testing.
+# No lint, no tests — just packages and uploads the artifact.
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Package Extension
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Zip extension
+        run: |
+          zip -r arctic-scapes.zip \
+            manifest.json \
+            newtab.html newtab.css newtab.js \
+            api.js greetings.js settings.js storage.js \
+            icons/ images/ options/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: arctic-scapes
+          path: arctic-scapes.zip
+          retention-days: 7
