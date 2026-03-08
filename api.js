@@ -69,12 +69,13 @@ async function getFallbackMeta() {
   return _fallbackCache;
 }
 
-// REVIEW MODE: set to 'morning', 'afternoon', or 'evening' to lock the period.
+// REVIEW MODE: set to 'morning', 'afternoon', 'evening', or 'all' to review photos.
+// 'all' cycles through all 150 photos in order (morning → afternoon → evening).
 // Set to null to restore normal time-of-day behaviour before merging.
-export const REVIEW_PERIOD = null;
+export const REVIEW_PERIOD = 'all';
 
 function getPeriod(hour) {
-  if (REVIEW_PERIOD) return REVIEW_PERIOD;
+  if (REVIEW_PERIOD && REVIEW_PERIOD !== 'all') return REVIEW_PERIOD;
   if (hour >= 5 && hour < 12) return 'morning';
   if (hour >= 12 && hour < 17) return 'afternoon';
   return 'evening';
@@ -82,13 +83,34 @@ function getPeriod(hour) {
 
 async function getNextFallback() {
   const meta = await getFallbackMeta();
+
+  if (REVIEW_PERIOD === 'all') {
+    const total = meta.morning.length + meta.afternoon.length + meta.evening.length;
+    const key = 'fallbackIndex_all';
+    const index = (await storage.get(key)) ?? 0;
+    const i = index % total;
+    let period, localIndex;
+    if (i < meta.morning.length) {
+      period = 'morning';
+      localIndex = i;
+    } else if (i < meta.morning.length + meta.afternoon.length) {
+      period = 'afternoon';
+      localIndex = i - meta.morning.length;
+    } else {
+      period = 'evening';
+      localIndex = i - meta.morning.length - meta.afternoon.length;
+    }
+    await storage.set(key, (i + 1) % total);
+    return { ...meta[period][localIndex], _index: localIndex, _period: period };
+  }
+
   const period = getPeriod(new Date().getHours());
   const photos = meta[period];
   const key = `fallbackIndex_${period}`;
   const index = (await storage.get(key)) ?? 0;
   const photo = photos[index % photos.length];
   await storage.set(key, (index + 1) % photos.length);
-  return { ...photo, _index: index % photos.length };
+  return { ...photo, _index: index % photos.length, _period: period };
 }
 
 // ─── Unsplash API ──────────────────────────────────────────────────────────

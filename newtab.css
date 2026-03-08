@@ -154,3 +154,117 @@ body {
   opacity: 1;
   border-color: rgba(255, 255, 255, 0.8);
 }
+
+/* ─── Settings ───────────────────────────────────────────────────────────── */
+.settings-wrap {
+  position: absolute;
+  bottom: 2rem;
+  right: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+
+.settings-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  transition: color 0.2s ease;
+}
+
+.settings-btn:hover {
+  color: #ffffff;
+}
+
+.settings-dropdown {
+  background: rgba(8, 18, 32, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0.65rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.settings-wrap.open .settings-dropdown {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.5rem;
+}
+
+.settings-header {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  user-select: none;
+  margin-bottom: 0.15rem;
+}
+
+.settings-label {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.82);
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+
+/* Toggle switch */
+.toggle {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.2s ease;
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.2s ease;
+}
+
+.toggle[aria-checked="true"] {
+  background: #4a9eff;
+}
+
+.toggle[aria-checked="true"]::after {
+  transform: translateX(14px);
+}
+
+/* Hide elements when their setting is off */
+body[data-hide-clock] .clock { display: none; }
+body[data-hide-greeting] .greeting { display: none; }
+body[data-hide-location] .location { display: none !important; }
