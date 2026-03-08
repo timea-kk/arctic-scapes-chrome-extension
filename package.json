@@ -10,7 +10,8 @@
     "replenish-photos": "node scripts/replenish-photos.js",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "replace-morning-flagged": "node scripts/replace-morning-flagged.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

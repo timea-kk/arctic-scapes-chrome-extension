@@ -4,7 +4,7 @@
  * greeting, background image, and photo credit.
  */
 
-import { getNextImage } from './api.js';
+import { getNextImage, REVIEW_PERIOD } from './api.js';
 import { getGreeting } from './greetings.js';
 import { getSetting } from './settings.js';
 
@@ -14,6 +14,7 @@ const greetingEl = document.getElementById('greeting');
 const locationEl = document.getElementById('location');
 const creditEl = document.getElementById('credit');
 const bgCurrent = document.getElementById('bg-current');
+const reviewCounterEl = document.getElementById('review-counter');
 
 // ─── Clock ────────────────────────────────────────────────────────────────
 
@@ -99,11 +100,15 @@ async function init() {
     startClock(),
   ]);
 
-  await showGreeting(hour);
+  const REVIEW_HOURS = { morning: 9, afternoon: 14, evening: 20 };
+  await showGreeting(REVIEW_PERIOD ? REVIEW_HOURS[REVIEW_PERIOD] : hour);
 
   try {
     const photo = await getNextImage();
     await showPhoto(photo);
+    if (REVIEW_PERIOD && reviewCounterEl) {
+      reviewCounterEl.textContent = `REVIEW: ${REVIEW_PERIOD} · photo ${photo._index + 1} / 50`;
+    }
   } catch (err) {
     console.error('[Arctic Scapes] Could not load photo:', err);
     // Leave the dark background — still functional

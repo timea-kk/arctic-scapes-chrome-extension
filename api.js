@@ -71,7 +71,7 @@ async function getFallbackMeta() {
 
 // REVIEW MODE: set to 'morning', 'afternoon', or 'evening' to lock the period.
 // Set to null to restore normal time-of-day behaviour before merging.
-export const REVIEW_PERIOD = 'evening';
+export const REVIEW_PERIOD = null;
 
 function getPeriod(hour) {
   if (REVIEW_PERIOD) return REVIEW_PERIOD;
