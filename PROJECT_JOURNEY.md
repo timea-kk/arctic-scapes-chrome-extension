@@ -11,7 +11,6 @@ Build journey for the Arctic Scapes Chrome extension — what we built, what bro
 ---
 
 ## 📍 Milestone 1: The foundation
-**Date:** 6 March 2026
 
 **What we built**
 - New tab page with full-viewport image, live clock, time-of-day greeting (with surprise variants), location tag, and photographer credit
@@ -42,7 +41,6 @@ Build journey for the Arctic Scapes Chrome extension — what we built, what bro
 ---
 
 ## 📍 Milestone 2: Photo library + CI/CD
-**Date:** 7 March 2026
 
 **What we built**
 - Expanded fallback library to 120 photos: 50 morning, 40 afternoon, 40 evening — all arctic/polar, all with real location data and attribution
@@ -63,10 +61,29 @@ Build journey for the Arctic Scapes Chrome extension — what we built, what bro
 
 ---
 
+## 📍 Milestone 3: Photo curation + settings panel
+
+**What we built**
+- Manually curated all 150 photos (50 per period) via Unsplash links — verified location, checked cross-period duplicates via API before placing; banned countries enforced (Russia never, Finland/Sweden/USA removed)
+- Settings gear icon (bottom-right) opens a frosted-glass dropdown to toggle clock, greeting, and location pin on/off; preferences persist in storage
+- Review mode upgraded to `'all'` — cycles all 150 photos in sequence (morning → afternoon → evening) with period-aware counter and greeting; set `REVIEW_PERIOD = null` before shipping
+
+**What went wrong**
+- Unsplash free tier is 50 requests/hour and both random fetches and single-photo lookups count — hit the limit mid-session repeatedly; worked around by batching link checks and scheduling overnight cron runs
+- Several country names in Unsplash metadata are in Spanish/German/Icelandic ("Islandia", "Island") — needed explicit normalisation to avoid rejecting valid arctic photos
+
+**What the agent learned**
+- User-curated workflow (paste Unsplash link → API check → download) is more reliable than scripted bulk fetches for quality control
+- `data-hide-*` attributes on `<body>` with CSS selectors is the cleanest way to toggle visibility without conflicting with existing class-based show/hide logic
+
+**Outcome:** ✅ 150 curated photos live, all with locations, no cross-period duplicates. Settings panel shipped. Review mode covers all periods in one pass.
+
+---
+
 ## 📍 Where we are now
-Extension: Milestone 2 complete. 120 fallback photos across 3 time periods, CI/CD pipeline wired up.
+Extension: Milestone 3 complete. 150 curated photos, settings panel, full-library review mode.
 Icons: Plain mountain silhouette — designer to refine.
-Next: Connect CI/CD secrets, review morning and afternoon photo batches, submit to Chrome Web Store.
+Next: Connect CI/CD secrets, submit to Chrome Web Store.
 
 ---
 

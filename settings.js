@@ -10,6 +10,9 @@ const DEFAULTS = {
   showSeconds: false,
   funnyGreetings: true,
   unsplashApiKey: '',
+  showClock: true,
+  showGreeting: true,
+  showLocation: true,
 };
 
 export async function getSetting(key) {

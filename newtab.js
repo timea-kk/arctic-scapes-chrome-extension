@@ -4,9 +4,9 @@
  * greeting, background image, and photo credit.
  */
 
-import { getNextImage } from './api.js';
+import { getNextImage, REVIEW_PERIOD } from './api.js';
 import { getGreeting } from './greetings.js';
-import { getSetting } from './settings.js';
+import { getSetting, setSetting } from './settings.js';
 
 // ─── DOM refs ─────────────────────────────────────────────────────────────
 const clockEl = document.getElementById('clock');
@@ -14,6 +14,7 @@ const greetingEl = document.getElementById('greeting');
 const locationEl = document.getElementById('location');
 const creditEl = document.getElementById('credit');
 const bgCurrent = document.getElementById('bg-current');
+const reviewCounterEl = document.getElementById('review-counter');
 
 // ─── Clock ────────────────────────────────────────────────────────────────
 
@@ -91,22 +92,81 @@ async function showPhoto(photo) {
 
 }
 
+// ─── Settings panel ───────────────────────────────────────────────────────
+
+function applyVisibility(type, visible) {
+  if (visible) document.body.removeAttribute(`data-hide-${type}`);
+  else document.body.setAttribute(`data-hide-${type}`, '');
+}
+
+async function initSettings() {
+  const [showClock, showGreeting, showLocation] = await Promise.all([
+    getSetting('showClock'),
+    getSetting('showGreeting'),
+    getSetting('showLocation'),
+  ]);
+
+  applyVisibility('clock', showClock);
+  applyVisibility('greeting', showGreeting);
+  applyVisibility('location', showLocation);
+
+  const wrap = document.getElementById('settings-wrap');
+  const dropdown = document.getElementById('settings-dropdown');
+
+  document.getElementById('settings-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrap.classList.toggle('open');
+  });
+
+  dropdown.addEventListener('click', (e) => e.stopPropagation());
+
+  document.addEventListener('click', () => wrap.classList.remove('open'));
+
+  const toggleMap = [
+    ['toggle-clock',    'showClock',    'clock',    showClock],
+    ['toggle-greeting', 'showGreeting', 'greeting', showGreeting],
+    ['toggle-location', 'showLocation', 'location', showLocation],
+  ];
+
+  for (const [id, key, type, initial] of toggleMap) {
+    const toggle = document.getElementById(id);
+    toggle.setAttribute('aria-checked', String(initial));
+    toggle.addEventListener('click', async () => {
+      const newVal = toggle.getAttribute('aria-checked') !== 'true';
+      toggle.setAttribute('aria-checked', String(newVal));
+      await setSetting(key, newVal);
+      applyVisibility(type, newVal);
+    });
+  }
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────
 
 async function init() {
   // Clock and greeting can run in parallel with image loading
   const [hour] = await Promise.all([
     startClock(),
+    initSettings(),
   ]);
 
-  await showGreeting(hour);
+  const REVIEW_HOURS = { morning: 9, afternoon: 14, evening: 20 };
+
+  if (!REVIEW_PERIOD) await showGreeting(hour);
 
   try {
     const photo = await getNextImage();
+    if (REVIEW_PERIOD) {
+      const reviewPeriod = photo._period ?? REVIEW_PERIOD;
+      await showGreeting(REVIEW_HOURS[reviewPeriod]);
+      if (reviewCounterEl) {
+        reviewCounterEl.textContent = `REVIEW: ${reviewPeriod} · photo ${photo._index + 1} / 50`;
+      }
+    }
     await showPhoto(photo);
   } catch (err) {
     console.error('[Arctic Scapes] Could not load photo:', err);
-    // Leave the dark background — still functional
+    if (!REVIEW_PERIOD) return;
+    await showGreeting(hour);
   }
 }
 

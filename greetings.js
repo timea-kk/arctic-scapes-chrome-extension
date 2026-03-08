@@ -13,25 +13,25 @@ const TIME_GREETINGS = {
 
 const SURPRISE_GREETINGS = [
   'Howdy, explorer',
-  'Ah, another tab. Bold move.',
   'The Arctic called. It says hi.',
   'Somewhere, a polar bear is watching.',
-  'New tab, new you. Probably.',
-  'Still here? Impressive.',
   "G'day, even if it isn't.",
-  'You opened a new tab. Respect.',
   'Cold outside. Warm in here.',
   'Procrastination never looked this good.',
-  'Tabs: the modern meditation.',
-  'Eyes up, explorer.',
   'The ice is patient. Are you?',
   'Less emails, more glaciers.',
-  'Breathe. Then close seventeen tabs.',
   'Just you, the ice, and your thoughts.',
   '404: productivity not found.',
-  "This one's for the dreamers.",
-  'Not all who wander open new tabs. But here you are.',
-  'Stay curious. Stay a little lost.',
+  'Svalbard sends its regards.',
+  'The aurora doesn\'t care about your inbox.',
+  'No signal out here. Just the wind.',
+  "The ice doesn't have notifications. Lucky ice.",
+  'Nothing a good horizon can\'t fix.',
+  'Even glaciers move. Eventually.',
+  'The midnight sun never clocks out.',
+  'Some things are worth the cold.',
+  'Somewhere, it\'s -40°. You\'re doing great.',
+  'The ice has seen things. So have you.',
 ];
 
 function getTimePool(hour) {
@@ -55,7 +55,7 @@ function pickRandom(pool, excludeIndex = -1) {
  * @param {boolean} funnyEnabled - whether surprise greetings are on
  */
 export function getGreeting(hour, funnyEnabled = true) {
-  if (funnyEnabled && Math.random() < 0.15) {
+  if (funnyEnabled && Math.random() < 0.30) {
     const lastIdx = parseInt(sessionStorage.getItem('lastSurpriseIdx') ?? '-1', 10);
     const { text, index } = pickRandom(SURPRISE_GREETINGS, lastIdx);
     sessionStorage.setItem('lastSurpriseIdx', String(index));
