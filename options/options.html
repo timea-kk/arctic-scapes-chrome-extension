@@ -1,16 +1,36 @@
+<!--
+  options.html
+
+  The Settings page for the extension — accessible via the gear icon on the new tab,
+  then clicking "Options" (or directly via chrome://extensions).
+
+  It contains two setting cards:
+    - Clock: choose 24h or AM/PM format, toggle seconds on/off
+      (the 24h/AM-PM toggle is also available in the new tab settings dropdown)
+    - Greetings: toggle surprise greetings on/off
+
+  All the interactivity (reading saved values, saving changes) is handled by options.js.
+  This file is just the structure and visual styling.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Arctic Scapes — Settings</title>
+
+  <!-- Load the Plus Jakarta Sans font from Google Fonts. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap"
     rel="stylesheet"
   />
+
   <style>
+    /* ── Design tokens ────────────────────────────────────────────────────────
+       All colours, fonts, and sizing live here as CSS variables so they're
+       easy to change in one place rather than hunting through the file.      */
     :root {
       --font-primary: 'Plus Jakarta Sans', sans-serif;
       --bg: #f5f7fa;
@@ -23,8 +43,12 @@
       --radius: 10px;
     }
 
+    /* ── Reset ────────────────────────────────────────────────────────────────
+       Removes browser default spacing and makes box-sizing consistent
+       so widths and heights behave predictably.                               */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Page base ────────────────────────────────────────────────────────── */
     body {
       font-family: var(--font-primary);
       background: var(--bg);
@@ -34,11 +58,13 @@
       -webkit-font-smoothing: antialiased;
     }
 
+    /* Centres the content and caps it at a comfortable reading width. */
     .page {
       max-width: 520px;
       margin: 0 auto;
     }
 
+    /* ── Page header ──────────────────────────────────────────────────────── */
     header {
       margin-bottom: 2rem;
     }
@@ -56,6 +82,8 @@
       color: var(--muted);
     }
 
+    /* ── Setting cards ────────────────────────────────────────────────────────
+       Each group of related settings sits in a white card with a border.     */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -64,6 +92,7 @@
       margin-bottom: 1.25rem;
     }
 
+    /* Small uppercase label at the top of each card (e.g. "CLOCK"). */
     .card-title {
       font-size: 0.75rem;
       font-weight: 600;
@@ -73,6 +102,7 @@
       margin-bottom: 1.1rem;
     }
 
+    /* Each individual setting is a row: label on the left, control on the right. */
     .setting-row {
       display: flex;
       align-items: center;
@@ -80,6 +110,7 @@
       padding: 0.6rem 0;
     }
 
+    /* A thin divider line between rows within the same card. */
     .setting-row + .setting-row {
       border-top: 1px solid var(--border);
     }
@@ -89,13 +120,22 @@
       font-weight: 400;
     }
 
+    /* Optional helper text shown below the label in smaller, muted type. */
     .setting-hint {
       font-size: 0.78rem;
       color: var(--muted);
       margin-top: 0.15rem;
     }
 
-    /* Toggle switch */
+    /* ── Toggle switch ────────────────────────────────────────────────────────
+       A custom on/off toggle built on top of a hidden HTML checkbox.
+       The visible track and sliding circle are pure CSS — no images needed.
+
+       How it works:
+         - The real <input type="checkbox"> is hidden (opacity: 0)
+         - The .toggle-track is what the user actually sees
+         - When the checkbox is checked, CSS changes the track colour and
+           slides the circle to the right via transform: translateX         */
     .toggle {
       position: relative;
       width: 44px;
@@ -103,6 +143,8 @@
       flex-shrink: 0;
     }
 
+    /* Hide the real checkbox visually, but keep it accessible to the browser
+       so clicks on the track still toggle it correctly. */
     .toggle input {
       opacity: 0;
       width: 0;
@@ -110,6 +152,7 @@
       position: absolute;
     }
 
+    /* The coloured pill background of the toggle. */
     .toggle-track {
       position: absolute;
       inset: 0;
@@ -119,6 +162,7 @@
       transition: background 0.2s;
     }
 
+    /* The white circle that slides left/right. */
     .toggle-track::after {
       content: '';
       position: absolute;
@@ -132,20 +176,26 @@
       transition: transform 0.2s;
     }
 
+    /* When the checkbox is checked: turn the track accent blue. */
     .toggle input:checked + .toggle-track {
       background: var(--accent);
     }
 
+    /* When the checkbox is checked: slide the circle to the right. */
     .toggle input:checked + .toggle-track::after {
       transform: translateX(20px);
     }
 
+    /* Show a keyboard focus ring when navigating with Tab. */
     .toggle input:focus-visible + .toggle-track {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
 
-    /* Segmented control for clock format */
+    /* ── Segmented control (clock format) ────────────────────────────────────
+       The 24h / 12h selector is built from radio buttons styled as a pill
+       with two tabs. Clicking a label checks its hidden radio input,
+       and CSS highlights the active option with a white background.          */
     .segment-group {
       display: flex;
       background: var(--bg);
@@ -154,6 +204,7 @@
       gap: 2px;
     }
 
+    /* Hide the actual radio buttons — the labels handle all the clicking. */
     .segment-group input[type="radio"] {
       display: none;
     }
@@ -169,50 +220,16 @@
       user-select: none;
     }
 
+    /* The selected option gets a white pill and accent text colour. */
     .segment-group input[type="radio"]:checked + label {
       background: white;
       color: var(--accent);
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
-    /* API key input */
-    .api-key-wrap {
-      margin-top: 0.75rem;
-    }
-
-    .api-key-wrap input[type="text"],
-    .api-key-wrap input[type="password"] {
-      width: 100%;
-      padding: 0.6rem 0.85rem;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      font-family: var(--font-primary);
-      font-size: 0.88rem;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.15s;
-    }
-
-    .api-key-wrap input:focus {
-      border-color: var(--accent);
-    }
-
-    .api-key-hint {
-      margin-top: 0.5rem;
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-
-    .api-key-hint a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .api-key-hint a:hover {
-      text-decoration: underline;
-    }
-
-    /* Save button */
+    /* ── Save bar ─────────────────────────────────────────────────────────────
+       The Save button and the "Saved!" confirmation message that briefly
+       appears after saving and then fades out.                                */
     .save-bar {
       margin-top: 1.5rem;
       display: flex;
@@ -236,6 +253,8 @@
     .btn-save:hover { opacity: 0.85; }
     .btn-save:active { opacity: 0.7; }
 
+    /* Hidden by default (opacity: 0). options.js adds .visible to show it,
+       then removes it after 2 seconds. The transition makes it fade smoothly. */
     #save-status {
       font-size: 0.85rem;
       color: #16a34a;
@@ -248,14 +267,18 @@
 </head>
 <body>
   <div class="page">
+
+    <!-- Page heading -->
     <header>
       <h1>Arctic Scapes</h1>
       <p>Customise your new tab experience</p>
     </header>
 
+    <!-- Clock settings card -->
     <div class="card">
       <div class="card-title">Clock</div>
 
+      <!-- 24h / 12h format selector -->
       <div class="setting-row">
         <div>
           <div class="setting-label">Format</div>
@@ -268,6 +291,7 @@
         </div>
       </div>
 
+      <!-- Show/hide seconds toggle -->
       <div class="setting-row">
         <div>
           <div class="setting-label">Show seconds</div>
@@ -279,9 +303,11 @@
       </div>
     </div>
 
+    <!-- Greetings settings card -->
     <div class="card">
       <div class="card-title">Greetings</div>
 
+      <!-- Surprise greetings toggle -->
       <div class="setting-row">
         <div>
           <div class="setting-label">Surprise greetings</div>
@@ -294,28 +320,15 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-title">Unsplash API</div>
-      <p style="font-size: 0.88rem; color: var(--muted); margin-bottom: 0.75rem;">
-        Arctic Scapes ships with a set of bundled photos. Add your own free Unsplash API key to
-        stream fresh images from the full Unsplash library — new photos every time you open a tab.
-      </p>
-      <div class="api-key-wrap">
-        <input type="password" id="unsplashApiKey" placeholder="Paste your Access Key here" autocomplete="off" />
-        <p class="api-key-hint">
-          Get a free key at
-          <a href="https://unsplash.com/developers" target="_blank" rel="noopener noreferrer">unsplash.com/developers</a>
-          — sign up, create an app, copy the Access Key.
-        </p>
-      </div>
-    </div>
-
+    <!-- Save button and confirmation message -->
     <div class="save-bar">
       <button class="btn-save" id="btn-save">Save settings</button>
       <span id="save-status">Saved!</span>
     </div>
+
   </div>
 
+  <!-- options.js reads the saved settings on load and handles saving on click. -->
   <script type="module" src="options.js"></script>
 </body>
 </html>

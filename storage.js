@@ -1,11 +1,22 @@
 /**
  * storage.js
- * Unified storage abstraction. Detects chrome.storage and uses it if available,
- * otherwise falls back to localStorage. Use this everywhere — never call
- * chrome.storage or localStorage directly.
+ *
+ * A single place to read and write saved data.
+ *
+ * When the extension is running inside Chrome, it uses Chrome's built-in
+ * storage (chrome.storage.local), which persists across browser restarts
+ * and works correctly in an extension context.
+ *
+ * When running in a plain browser tab during development (npm start),
+ * Chrome's storage isn't available, so it falls back to localStorage instead.
+ *
+ * Every other file should import this and call storage.get / storage.set —
+ * never use chrome.storage or localStorage directly anywhere else.
  */
 
 const storage = {
+
+  // Read a saved value by its key name. Returns null if nothing is saved yet.
   async get(key) {
     if (typeof chrome !== 'undefined' && chrome.storage?.local) {
       return new Promise((resolve) => {
@@ -21,6 +32,7 @@ const storage = {
     }
   },
 
+  // Save a value under a key name, overwriting whatever was there before.
   async set(key, value) {
     if (typeof chrome !== 'undefined' && chrome.storage?.local) {
       return new Promise((resolve) => {
@@ -30,6 +42,7 @@ const storage = {
     localStorage.setItem(key, JSON.stringify(value));
   },
 
+  // Delete a saved value entirely.
   async remove(key) {
     if (typeof chrome !== 'undefined' && chrome.storage?.local) {
       return new Promise((resolve) => {
@@ -38,6 +51,7 @@ const storage = {
     }
     localStorage.removeItem(key);
   },
+
 };
 
 export default storage;

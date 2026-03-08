@@ -1,43 +1,45 @@
 /**
  * options.js
- * Loads and saves user settings for the Arctic Scapes options page.
- * Imports settings.js via relative path from the options/ folder.
+ *
+ * Controls the Settings page (accessible via the gear icon → "Options" in Chrome).
+ *
+ * On load: reads the user's saved preferences and fills in the form fields.
+ * On save: writes the new values back to storage when the Save button is clicked.
  */
 
 import { getSetting, setSetting } from '../settings.js';
 
-const fmtRadios = document.querySelectorAll('input[name="clockFormat"]');
-const showSecondsEl = document.getElementById('showSeconds');
+// Grab the form elements by their id from options.html.
+const fmtRadios       = document.querySelectorAll('input[name="clockFormat"]');
+const showSecondsEl   = document.getElementById('showSeconds');
 const funnyGreetingsEl = document.getElementById('funnyGreetings');
-const apiKeyEl = document.getElementById('unsplashApiKey');
-const saveBtn = document.getElementById('btn-save');
-const saveStatus = document.getElementById('save-status');
+const saveBtn         = document.getElementById('btn-save');
+const saveStatus      = document.getElementById('save-status');
 
+// Read current settings from storage and apply them to the form.
 async function loadSettings() {
-  const [format, seconds, funny, apiKey] = await Promise.all([
+  const [format, seconds, funny] = await Promise.all([
     getSetting('clockFormat'),
     getSetting('showSeconds'),
     getSetting('funnyGreetings'),
-    getSetting('unsplashApiKey'),
   ]);
 
   fmtRadios.forEach((r) => { r.checked = r.value === format; });
-  showSecondsEl.checked = seconds;
+  showSecondsEl.checked    = seconds;
   funnyGreetingsEl.checked = funny;
-  apiKeyEl.value = apiKey;
 }
 
+// Write the current form values back to storage.
 async function saveSettings() {
   const selectedFormat = [...fmtRadios].find((r) => r.checked)?.value ?? '24h';
 
   await Promise.all([
-    setSetting('clockFormat', selectedFormat),
-    setSetting('showSeconds', showSecondsEl.checked),
+    setSetting('clockFormat',    selectedFormat),
+    setSetting('showSeconds',    showSecondsEl.checked),
     setSetting('funnyGreetings', funnyGreetingsEl.checked),
-    setSetting('unsplashApiKey', apiKeyEl.value.trim()),
   ]);
 
-  // Flash "Saved!" feedback
+  // Briefly show "Saved!" feedback, then fade it out.
   saveStatus.classList.add('visible');
   setTimeout(() => saveStatus.classList.remove('visible'), 2000);
 }

@@ -2,7 +2,7 @@
 /**
  * scripts/fill-missing-locations.js
  *
- * Finds all photos in fallback-meta.json that have no location tag,
+ * Finds all photos in images/photos.json that have no location tag,
  * replaces them with new photos that have confirmed location data,
  * downloads to the same filenames, and patches the metadata in place.
  *
@@ -17,7 +17,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const META_PATH = path.join(ROOT, 'images', 'fallback-meta.json');
+const META_PATH = path.join(ROOT, 'images', 'photos.json');
 
 const API_KEY = process.argv[2] || process.env.UNSPLASH_KEY;
 const UTM = 'utm_source=arctic_scapes&utm_medium=referral';
@@ -213,7 +213,7 @@ async function run() {
   }
 
   fs.writeFileSync(META_PATH, JSON.stringify(meta, null, 2));
-  console.log(`\nDone. ${totalReplaced} photos replaced. fallback-meta.json updated.`);
+  console.log(`\nDone. ${totalReplaced} photos replaced. photos.json updated.`);
 }
 
 run().catch((err) => {

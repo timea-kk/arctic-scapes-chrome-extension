@@ -2,13 +2,13 @@
 /**
  * scripts/download-fallbacks.js
  *
- * Downloads 40 fallback images per time of day (120 total) from the Unsplash API
- * and writes images/fallback-meta.json with full photographer + location metadata.
+ * Downloads 40 images per time of day (120 total) from the Unsplash API
+ * and writes images/photos.json with full photographer + location metadata.
  *
  * Images are saved to:
- *   images/morning/fallback-01.jpg … fallback-40.jpg
- *   images/afternoon/fallback-01.jpg … fallback-40.jpg
- *   images/evening/fallback-01.jpg … fallback-40.jpg
+ *   images/morning/morning-01.jpg … morning-40.jpg
+ *   images/afternoon/afternoon-01.jpg … afternoon-40.jpg
+ *   images/evening/evening-01.jpg … evening-40.jpg
  *
  * Usage:
  *   UNSPLASH_KEY=your_access_key node scripts/download-fallbacks.js
@@ -156,7 +156,7 @@ async function downloadCategory(name, queries) {
   const meta = [];
   for (let i = 0; i < selected.length; i++) {
     const photo = selected[i];
-    const filename = `fallback-${String(i + 1).padStart(2, '0')}.jpg`;
+    const filename = `${name}-${String(i + 1).padStart(2, '0')}.jpg`;
     const filepath = `images/${name}/${filename}`;
     const dest = path.join(IMAGES_DIR, name, filename);
     const imgUrl = `${photo.urls.raw}&w=2560&q=85&fm=jpg&fit=crop&crop=entropy`;
@@ -176,12 +176,12 @@ async function run() {
     result[name] = await downloadCategory(name, queries);
   }
 
-  const metaPath = path.join(IMAGES_DIR, 'fallback-meta.json');
+  const metaPath = path.join(IMAGES_DIR, 'photos.json');
   fs.writeFileSync(metaPath, JSON.stringify(result, null, 2));
 
   const total = Object.values(result).reduce((sum, arr) => sum + arr.length, 0);
   console.log(`\nDone. ${total} photos saved.`);
-  console.log(`Metadata written to images/fallback-meta.json`);
+  console.log(`Metadata written to images/photos.json`);
 }
 
 run().catch((err) => {

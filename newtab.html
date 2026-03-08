@@ -1,3 +1,18 @@
+<!--
+  newtab.html
+
+  The new tab page — this is what Chrome loads every time you open a new tab.
+
+  It's intentionally minimal: just the structural scaffolding. All the content
+  (clock text, greeting, photo, location, credit) is filled in by newtab.js
+  after the page loads. The styling lives in newtab.css.
+
+  Structure:
+    - Two background div layers (current photo + next preloaded beneath it)
+    - A gradient overlay to make the bottom text readable over bright photos
+    - The main content: clock + greeting (centred), location + credit (bottom-left),
+      and the settings gear icon (bottom-right)
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,14 +38,11 @@
   <!-- Bottom gradient overlay for credit legibility -->
   <div class="overlay" aria-hidden="true"></div>
 
-  <!-- TEMP: review counter -->
-  <div id="review-counter" aria-hidden="true"></div>
-
   <!-- Main UI -->
   <main class="content">
     <!-- Clock + greeting, centred at ~45% from top -->
     <div class="center-block">
-      <time id="clock" class="clock" datetime=""></time>
+      <time id="clock" class="clock" datetime="" aria-label="Current time"></time>
       <p id="greeting" class="greeting"></p>
     </div>
 
@@ -47,6 +59,10 @@
         <div class="settings-row">
           <span class="settings-label">Clock</span>
           <button class="toggle" id="toggle-clock" role="switch" aria-checked="true" aria-label="Toggle clock"></button>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">24h clock</span>
+          <button class="toggle" id="toggle-clock-format" role="switch" aria-checked="true" aria-label="Toggle 24h clock format"></button>
         </div>
         <div class="settings-row">
           <span class="settings-label">Greeting</span>

@@ -2,13 +2,8 @@
 /**
  * scripts/replenish-photos.js
  *
- * Brings the photo library up to standard in one pass:
- *   1. Replaces 6 flagged morning photos (user disliked during review)
- *   2. Replaces all null-location photos across all three periods
- *   3. Adds 10 unique Antarctica photos to afternoon
- *   4. Tops up afternoon to 40 photos total
- *   5. Adds 10 unique Antarctica photos to evening
- *   6. Tops up evening to 40 photos total
+ * Brings the photo library up to standard in one pass.
+ * Reads and updates images/photos.json.
  *
  * Usage:
  *   UNSPLASH_KEY=your_access_key node scripts/replenish-photos.js
@@ -21,7 +16,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const META_PATH = path.join(ROOT, 'images', 'fallback-meta.json');
+const META_PATH = path.join(ROOT, 'images', 'photos.json');
 
 const API_KEY = process.argv[2] || process.env.UNSPLASH_KEY;
 const UTM = 'utm_source=arctic_scapes&utm_medium=referral';
@@ -32,15 +27,6 @@ if (!API_KEY) {
   process.exit(1);
 }
 
-// Morning photos flagged as unwanted during the design review
-const FLAGGED_MORNING_IDS = new Set([
-  'ol7KRNzBUMY', // sunrise over a mountain lake — icy rocks
-  'pBB2s3z5MmI', // ice on body of water during sunset
-  'l6EQHqhQAgQ', // river running through snow-covered valley
-  'H52F-ELwhR0', // body of water surrounded by mountains
-  '8enmIc7oriw', // sunrise over a glacier
-  'FNN2yFYPTTs', // Antarctica — duplicate visual style
-]);
 
 const QUERIES = {
   morning: [
@@ -243,13 +229,13 @@ async function gatherCandidates(queryList, needed, seen) {
 
 function nextFilename(period, existingUrls) {
   const nums = existingUrls.map((u) => {
-    const m = u.match(/fallback-(\d+)/);
+    const m = u.match(/(\d+)\.jpg$/);
     return m ? parseInt(m[1], 10) : 0;
   });
   let next = (nums.length > 0 ? Math.max(...nums) : 0) + 1;
   return () => {
     const n = next++;
-    return `images/${period}/fallback-${String(n).padStart(2, '0')}.jpg`;
+    return `images/${period}/${period}-${String(n).padStart(2, '0')}.jpg`;
   };
 }
 
