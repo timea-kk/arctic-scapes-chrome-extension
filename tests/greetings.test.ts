@@ -1,14 +1,17 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { getGreeting } from '../greetings.js';
+import { getGreeting } from '../src/greetings.js';
 
 // sessionStorage doesn't exist in Node — provide a minimal stand-in
 beforeAll(() => {
-  const store = {};
+  const store: Record<string, string> = {};
   global.sessionStorage = {
-    getItem: (key) => store[key] ?? null,
-    setItem: (key, val) => { store[key] = String(val); },
-    removeItem: (key) => { delete store[key]; },
-  };
+    getItem: (key: string) => store[key] ?? null,
+    setItem: (key: string, val: string) => { store[key] = String(val); },
+    removeItem: (key: string) => { delete store[key]; },
+    clear: () => { Object.keys(store).forEach((k) => delete store[k]); },
+    key: (index: number) => Object.keys(store)[index] ?? null,
+    get length() { return Object.keys(store).length; },
+  } as Storage;
 });
 
 const MORNING   = ['Good morning', 'Morning', 'Rise and shine'];

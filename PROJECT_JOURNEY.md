@@ -80,8 +80,34 @@ Build journey for the Arctic Scapes Chrome extension — what we built, what bro
 
 ---
 
+---
+
+## 📍 Milestone 4: TypeScript migration
+
+**What we built**
+- Rewrote all source files from JavaScript to TypeScript — `src/types.ts`, `src/storage.ts`, `src/settings.ts`, `src/greetings.ts`, `src/api.ts`, `src/newtab.ts`, `src/options/options.ts`
+- Added `tsconfig.json` (compiles `src/` → project root), `tsconfig`-aware ESLint via `typescript-eslint`, and `npm run build` / `npm run typecheck` scripts
+- Converted the test suite to TypeScript; all 4 tests pass with zero changes to test logic
+
+**Why TypeScript is better than plain JavaScript here**
+- TypeScript catches mistakes before the code runs — typos in setting keys, wrong photo shapes, missing null checks — all become build errors instead of silent runtime bugs
+- The `Settings` type makes the settings system self-documenting: any developer (or AI) can see exactly which keys exist and what values are allowed, without reading through four files
+- Shared interfaces in `src/types.ts` mean every file agrees on what a `Photo` looks like — no more guessing whether `location` can be `null` or just an empty string
+
+**What went wrong**
+- `moduleResolution: "NodeNext"` requires explicit `.js` extensions in all imports even though the source files are `.ts` — counterintuitive but correct; TypeScript resolves `./storage.js` to `./storage.ts` at compile time
+- `types.js` compiles to an empty `export {}` shell (all TypeScript types are erased at build time) — harmless, but worth knowing it exists
+
+**What the agent learned**
+- `import type` is the right way to import interfaces — erased entirely at compile time, no runtime cost, no empty import left in the compiled output
+- `outDir: "."` with `rootDir: "src"` keeps compiled `.js` files right where the HTML and manifest already reference them — no path changes needed anywhere else
+
+**Outcome:** ✅ Full TypeScript codebase. Zero type errors. All tests pass. Build pipeline working.
+
+---
+
 ## 📍 Where we are now
-Extension: Milestone 3 complete. 150 curated photos, settings panel, full-library review mode.
+Extension: Milestone 4 complete. Full TypeScript, 150 curated photos, settings panel.
 Icons: Plain mountain silhouette — designer to refine.
 Next: Connect CI/CD secrets, submit to Chrome Web Store.
 

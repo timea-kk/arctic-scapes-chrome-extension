@@ -4,7 +4,9 @@
   "description": "Arctic Scapes - A Chrome new tab extension with arctic landscape photography",
   "type": "module",
   "scripts": {
-    "start": "http-server . -p 3000 --cors -c-1 -o newtab.html",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "start": "npm run build && http-server . -p 3000 --cors -c-1 -o newtab.html",
     "download-fallbacks": "node scripts/download-fallbacks.js",
     "fill-missing-locations": "node scripts/fill-missing-locations.js",
     "replenish-photos": "node scripts/replenish-photos.js",
@@ -15,9 +17,12 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "@types/chrome": "^0.1.37",
     "@vitest/coverage-v8": "^2.0.0",
     "eslint": "^9.0.0",
     "http-server": "^14.1.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1",
     "vitest": "^2.0.0"
   }
 }
