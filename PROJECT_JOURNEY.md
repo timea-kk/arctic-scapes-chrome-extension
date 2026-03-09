@@ -80,30 +80,36 @@ Build journey for the Arctic Scapes Chrome extension — what we built, what bro
 
 ---
 
-## 📍 Milestone 4: Clock format toggle + tests + Chrome Web Store submission
+---
+
+## 📍 Milestone 4: TypeScript migration
 
 **What we built**
-- 24h / AM-PM clock format toggle added to the settings dropdown; AM/PM renders smaller and baseline-aligned in a `<span class="clock-period">`; the toggle automatically disables when the clock is hidden
-- `clock.js` extracted from `newtab.js` so `formatTime()` can be unit-tested without touching the DOM; 25 tests across `clock.test.js`, `api.test.js`, and `settings.test.js` using Vitest
-- Full codebase audit and cleanup before submission: removed unused exports, fixed ESLint config coverage, removed the REVIEW_PERIOD dev tool, and restored clean time-of-day photo logic
+- Rewrote all source files from JavaScript to TypeScript — `src/types.ts`, `src/storage.ts`, `src/settings.ts`, `src/greetings.ts`, `src/api.ts`, `src/newtab.ts`, `src/options/options.ts`
+- Added `tsconfig.json` (compiles `src/` → project root), `tsconfig`-aware ESLint via `typescript-eslint`, and `npm run build` / `npm run typecheck` scripts
+- Converted the test suite to TypeScript; all 4 tests pass with zero changes to test logic
+
+**Why TypeScript is better than plain JavaScript here**
+- TypeScript catches mistakes before the code runs — typos in setting keys, wrong photo shapes, missing null checks — all become build errors instead of silent runtime bugs
+- The `Settings` type makes the settings system self-documenting: any developer (or AI) can see exactly which keys exist and what values are allowed, without reading through four files
+- Shared interfaces in `src/types.ts` mean every file agrees on what a `Photo` looks like — no more guessing whether `location` can be `null` or just an empty string
 
 **What went wrong**
-- The clock format listener originally used `{ capture: true }` to read the clock toggle's new state — but capture fires before the first listener flips `aria-checked`, so it was always reading the old value; fixed by removing capture and relying on registration order instead
-- Zipping from the wrong directory caused the archive to include the full absolute path rather than the extension files; fixed by running the zip command from inside the project folder
+- `moduleResolution: "NodeNext"` requires explicit `.js` extensions in all imports even though the source files are `.ts` — counterintuitive but correct; TypeScript resolves `./storage.js` to `./storage.ts` at compile time
+- `types.js` compiles to an empty `export {}` shell (all TypeScript types are erased at build time) — harmless, but worth knowing it exists
 
 **What the agent learned**
-- Extracting pure functions to their own files (no DOM imports) is what makes unit testing a JS browser extension tractable in Node
-- Event listener registration order is a reliable, readable alternative to capture phase tricks when two listeners on the same element need to run in sequence
+- `import type` is the right way to import interfaces — erased entirely at compile time, no runtime cost, no empty import left in the compiled output
+- `outDir: "."` with `rootDir: "src"` keeps compiled `.js` files right where the HTML and manifest already reference them — no path changes needed anywhere else
 
-**Outcome:** ✅ Extension submitted to the Chrome Web Store. Pending Google review.
+**Outcome:** ✅ Full TypeScript codebase. Zero type errors. All tests pass. Build pipeline working.
 
 ---
 
 ## 📍 Where we are now
-Extension: Submitted to Chrome Web Store, awaiting review.
-Next: Wait for approval email, then share the store link.
-
-Last updated: Mar 2026.
+Extension: Milestone 4 complete. Full TypeScript, 150 curated photos, settings panel.
+Icons: Plain mountain silhouette — designer to refine.
+Next: Connect CI/CD secrets, submit to Chrome Web Store.
 
 ---
 
