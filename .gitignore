@@ -14,3 +14,7 @@ options/options.js
 settings.js
 storage.js
 types.js
+
+# TypeScript config compiled output
+eslint.config.js
+vitest.config.js

@@ -24,7 +24,7 @@ beforeAll(() => {
     removeItem: (key: string)              => { delete store[key]; },
     clear:      ()                         => { store = {}; },
     length:     0,
-    key:        (_index: number)           => null,
+    key:        (_: number)                => null,
   } as Storage;
 });
 

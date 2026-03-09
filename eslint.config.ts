@@ -1,5 +1,5 @@
 /**
- * eslint.config.js
+ * eslint.config.ts
  *
  * Configuration for ESLint — a tool that automatically checks your code for
  * common mistakes and style issues while you write it. Think of it as a
@@ -11,11 +11,9 @@
  * `chrome`, etc.) are different from Node.js scripts (which have access to
  * `process`, `fs`, etc.).
  *
- * Three environments are configured:
- *   - Extension files (root *.js) — browser + Chrome API globals
- *   - scripts/                    — Node.js globals (file system, process, etc.)
- *   - tests/                      — both Node and browser globals (tests run in
- *                                   Node but test browser code)
+ * Two environments are configured:
+ *   - Extension source files (src/**/*.ts) — browser + Chrome API globals
+ *   - Tests (tests/**/*.ts)                — both Node and browser globals
  */
 
 import js from '@eslint/js';
@@ -30,14 +28,6 @@ export default tseslint.config(
       'node_modules/',
       'coverage/',
       'scripts/',
-      // Compiled JS output — source of truth is src/
-      'newtab.js',
-      'api.js',
-      'storage.js',
-      'settings.js',
-      'greetings.js',
-      'types.js',
-      'options/options.js',
     ],
   },
   // TypeScript extension source files
@@ -52,19 +42,6 @@ export default tseslint.config(
     rules: {
       'no-console': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
-    },
-  },
-  // Node scripts
-  {
-    files: ['scripts/**/*.js', 'scripts/**/*.mjs'],
-    languageOptions: {
-      globals: {
-        ...globals.node,
-      },
-    },
-    rules: {
-      'no-unused-vars': 'warn',
-      'no-console': 'off',
     },
   },
   // Tests

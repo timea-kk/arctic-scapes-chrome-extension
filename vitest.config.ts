@@ -1,5 +1,5 @@
 /**
- * vitest.config.js
+ * vitest.config.ts
  *
  * Configuration for Vitest — the test runner that executes the automated tests
  * in the tests/ folder. Run `npm test` to use it.
