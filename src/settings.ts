@@ -1,43 +1,35 @@
 /**
  * settings.ts
  *
- * Reads and writes the seven user preferences. Any part of the app
- * that needs a user setting calls getSetting(); any part that needs
- * to save a new value calls setSetting(). That's the whole API.
+ * Reads and writes the user's preferences (clock format, toggles, etc.).
  *
- * Settings are stored with a "setting_" prefix (e.g. "setting_clockFormat")
- * to keep them grouped and easy to identify in storage.
+ * Settings are stored with a "setting_" prefix so they're easy to identify
+ * in storage and won't accidentally clash with other saved data.
+ * Example: the clock format is stored under the key "setting_clockFormat".
+ *
+ * DEFAULTS holds what each setting should be if the user has never changed it.
  */
 
 import storage from './storage.js';
-import type { Settings, SettingKey, SettingValue } from './types.js';
+import type { SettingKey, SettingValue } from './types.js';
 
-// What every setting is set to when the extension is freshly installed.
-// getSetting returns the value from this object if the user hasn't changed it yet,
-// so the extension always works correctly out of the box.
-const DEFAULTS: Settings = {
-  clockFormat: '24h',
-  showSeconds: false,
+// The default value for each setting — used when the user hasn't changed it yet.
+const DEFAULTS = {
+  clockFormat:    '24h'  as const,
+  showSeconds:    false,
   funnyGreetings: true,
-  unsplashApiKey: '',
-  showClock: true,
-  showGreeting: true,
-  showLocation: true,
+  showClock:      true,
+  showGreeting:   true,
+  showLocation:   true,
 };
 
-// Read one setting. Returns the user's saved value, or the default if nothing's been saved.
-// The <K extends SettingKey> is TypeScript's way of making the return type exact —
-// ask for 'clockFormat' and you get back '12h' | '24h', not just a vague string.
+// Read a single setting. Returns the saved value, or the default if not set yet.
 export async function getSetting<K extends SettingKey>(key: K): Promise<SettingValue<K>> {
   const value = await storage.get(`setting_${key}`);
   return (value !== null ? value : DEFAULTS[key]) as SettingValue<K>;
 }
 
-// Save one setting. TypeScript ensures the value matches what that setting allows —
-// you can't accidentally save a number where a boolean is expected.
+// Save a single setting.
 export async function setSetting<K extends SettingKey>(key: K, value: SettingValue<K>): Promise<void> {
   await storage.set(`setting_${key}`, value);
 }
-
-// Export the defaults so other files can reference the baseline values directly if needed.
-export { DEFAULTS };

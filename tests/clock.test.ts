@@ -1,7 +1,7 @@
 /**
- * tests/clock.test.js
+ * tests/clock.test.ts
  *
- * Tests for the formatTime() function in clock.js.
+ * Tests for the formatTime() function in clock.ts.
  *
  * Checks that the clock displays the correct digits and AM/PM label
  * for both 24h and 12h formats, with and without seconds, and across
@@ -12,7 +12,7 @@ import { describe, it, expect } from 'vitest';
 import { formatTime } from '../clock.js';
 
 // Helper: build a Date object for a specific hour, minute, second.
-function at(h, m = 5, s = 30) {
+function at(h: number, m = 5, s = 30): Date {
   const d = new Date();
   d.setHours(h, m, s, 0);
   return d;

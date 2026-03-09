@@ -1,2 +1,16 @@
 node_modules/
 coverage/
+*.zip
+.DS_Store
+**/.DS_Store
+.claude/
+
+# TypeScript compiled output — source of truth is src/
+api.js
+clock.js
+greetings.js
+newtab.js
+options/options.js
+settings.js
+storage.js
+types.js

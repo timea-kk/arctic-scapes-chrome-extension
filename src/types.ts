@@ -14,41 +14,32 @@
 // TypeScript will refuse to accept any other string — no typos, no guessing.
 export type TimePeriod = 'morning' | 'afternoon' | 'evening';
 
-// The value of REVIEW_PERIOD in api.ts. 'all' cycles through every photo in order.
-// null means normal time-of-day behaviour (what users see in production).
-export type ReviewPeriod = TimePeriod | 'all' | null;
-
-// The shape of every photo object — whether it came from the bundled library
-// or from the Unsplash API. Every field that's always present is required;
-// _index and _period are only attached in certain situations, so they're optional.
+// The shape of every photo object as stored in images/photos.json.
 export interface Photo {
-  id: string;             // Unique ID from Unsplash
-  url: string;            // Direct image URL (or local path for bundled photos)
-  photographer: string;   // Display name of the photographer
+  id: string;              // Unique ID from Unsplash
+  url: string;             // Local file path (e.g. "./images/morning/morning-01.jpg")
+  photographer: string;    // Display name of the photographer
   photographerUrl: string; // Link to their Unsplash profile
-  unsplashUrl: string;    // Link to the photo page on Unsplash
+  unsplashUrl: string;     // Link to the photo page on Unsplash
   location: string | null; // "Tromsø, Norway" — or null if unknown
-  _index?: number;         // Position in its time-period array (used in review mode)
-  _period?: TimePeriod;    // Which time period this photo belongs to (used in review mode)
 }
 
-// The structure of fallback-meta.json — three arrays of photos, one per period.
-export interface FallbackMeta {
-  morning: Photo[];
+// The structure of images/photos.json — three arrays of photos, one per period.
+export interface PhotoMeta {
+  morning:   Photo[];
   afternoon: Photo[];
-  evening: Photo[];
+  evening:   Photo[];
 }
 
-// All seven user preferences, with their exact allowed types.
+// All user preferences, with their exact allowed types.
 // clockFormat can ONLY be '12h' or '24h' — TypeScript catches any other value.
 export interface Settings {
-  clockFormat: '12h' | '24h';
-  showSeconds: boolean;
+  clockFormat:    '12h' | '24h';
+  showSeconds:    boolean;
   funnyGreetings: boolean;
-  unsplashApiKey: string;
-  showClock: boolean;
-  showGreeting: boolean;
-  showLocation: boolean;
+  showClock:      boolean;
+  showGreeting:   boolean;
+  showLocation:   boolean;
 }
 
 // These two let getSetting/setSetting be fully typed — if you ask for 'clockFormat'

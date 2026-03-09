@@ -1,7 +1,7 @@
 /**
- * tests/api.test.js
+ * tests/api.test.ts
  *
- * Tests for getPeriod() in api.js.
+ * Tests for getPeriod() in api.ts.
  *
  * getPeriod() decides which photo collection to show based on the hour.
  * These tests check every boundary: that morning starts at 5 and ends at 11,

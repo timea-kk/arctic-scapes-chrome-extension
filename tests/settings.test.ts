@@ -1,13 +1,13 @@
 /**
- * tests/settings.test.js
+ * tests/settings.test.ts
  *
- * Tests for getSetting() and setSetting() in settings.js.
+ * Tests for getSetting() and setSetting() in settings.ts.
  *
  * These tests check that:
  *   - getSetting() returns the correct default when nothing has been saved yet
  *   - setSetting() saves a value that getSetting() can then read back
  *
- * settings.js uses storage.js, which falls back to localStorage when Chrome's
+ * settings.ts uses storage.ts, which falls back to localStorage when Chrome's
  * storage isn't available. Tests run in Node, so we provide a minimal
  * localStorage stand-in before the tests run.
  */
@@ -16,13 +16,16 @@ import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
 import { getSetting, setSetting } from '../settings.js';
 
 // localStorage doesn't exist in Node — provide a minimal stand-in.
-let store = {};
+let store: Record<string, string> = {};
 beforeAll(() => {
-  global.localStorage = {
-    getItem:    (key)       => store[key] ?? null,
-    setItem:    (key, val)  => { store[key] = String(val); },
-    removeItem: (key)       => { delete store[key]; },
-  };
+  (global as unknown as { localStorage: Storage }).localStorage = {
+    getItem:    (key: string)              => store[key] ?? null,
+    setItem:    (key: string, val: string) => { store[key] = String(val); },
+    removeItem: (key: string)              => { delete store[key]; },
+    clear:      ()                         => { store = {}; },
+    length:     0,
+    key:        (_index: number)           => null,
+  } as Storage;
 });
 
 // Clear storage before each test so they don't interfere with each other.
