@@ -24,6 +24,7 @@ arctic-scapes-chrome-extension/
 │   ├── storage.ts             The one place the app reads/writes saved data
 │   ├── settings.ts            Reads and writes user preferences (clock format, toggles)
 │   ├── greetings.ts           Picks the right greeting based on the time of day
+│   ├── clock.ts               Formats the time display; kept separate so it can be unit tested
 │   ├── api.ts                 Decides which photo to show next; handles preloading
 │   ├── newtab.ts              Wires everything together on the new tab page
 │   └── options/
@@ -37,7 +38,7 @@ arctic-scapes-chrome-extension/
 │   ├── morning/               50 bundled JPEGs for 05:00–12:00
 │   ├── afternoon/             50 bundled JPEGs for 12:00–17:00
 │   ├── evening/               50 bundled JPEGs for 17:00–05:00
-│   └── fallback-meta.json     Photographer names, Unsplash links, and location tags
+│   └── photos.json            Photographer names, Unsplash links, and location tags
 │
 ├── options/
 │   └── options.html           The settings page HTML
@@ -79,7 +80,7 @@ This is built for designers working with AI coding tools. The intended workflow 
 ## `src/settings.ts` — User preferences
 > Think of this as the app's preferences panel under the hood.
 
-- Reads and writes the seven user preferences (clock format, show seconds, funny greetings, Unsplash API key, show clock, show greeting, show location).
+- Reads and writes six user preferences: clock format, show seconds, funny greetings, show clock, show greeting, show location.
 - Every preference is stored under a `setting_` prefix in storage (e.g. `setting_clockFormat`) to keep them grouped and easy to find.
 - Falls back to a sensible default when a setting has never been saved — so the extension works correctly on a fresh install without any setup.
 
@@ -93,22 +94,28 @@ This is built for designers working with AI coding tools. The intended workflow 
 ## `src/api.ts` — The photo engine
 > Think of this as a librarian who knows which photo to hand you next, and has already fetched the next one before you even ask.
 
-- Cycles through the bundled 150 photos by time of day, keeping a separate counter per period (`fallbackIndex_morning`, etc.) so morning photos never bleed into evening.
+- Cycles through the bundled 150 photos by time of day, keeping a separate counter per period (`photoIndex_morning`, etc.) so morning photos never bleed into evening.
 - Preloads the next photo into storage after every tab load, so the following tab opens instantly with no network wait.
-- Also supports the Unsplash live API when a key is configured — batches 10 photos at a time and refreshes the batch in the background before it runs out.
+- Reads photo metadata from `images/photos.json`, which lists every photo's file path, photographer name, location, and attribution links.
 
 ## `src/newtab.ts` — The page controller
 > Think of this as the stage manager — it doesn't write the words or pick the photos, but it calls everyone else and puts everything in the right place on screen.
 
 - Starts the clock, loads settings, and kicks off the photo fetch — all at the same time using `Promise.all` so nothing waits unnecessarily.
-- Wires up the settings gear icon: opens the dropdown, applies the toggles, saves the preferences, and updates the page instantly without a reload.
-- Handles the `REVIEW_PERIOD` development mode: shows which photo number and time period is being previewed, useful for curating the photo library.
+- Wires up the settings gear icon: opens the dropdown, applies the toggles (clock, greeting, location, clock format), saves the preferences, and updates the page instantly without a reload.
+- Keeps the clock and greeting hidden until both are ready, so there's no layout jump when the page first loads.
+
+## `src/clock.ts` — The clock formatter
+> Think of this as the part of a watch that converts the internal mechanism into the numbers you actually read.
+
+- Converts a `Date` object into a display-ready string: `{ time: "14:05", period: null }` in 24h mode, or `{ time: "2:05", period: "PM" }` in 12h mode.
+- Kept in its own file so it can be tested without touching the DOM — all 11 clock tests run against this file directly.
 
 ## `src/options/options.ts` — The settings page
 > Think of this as the form handler for the settings page that opens when you right-click the extension.
 
 - Loads the current saved settings and fills in the form fields when the page opens.
-- On save, writes all four settings (clock format, show seconds, funny greetings, API key) to storage in one go.
+- On save, writes three settings (clock format, show seconds, funny greetings) to storage in one go.
 - Flashes a "Saved!" confirmation for two seconds so the user knows it worked.
 
 ---
@@ -141,7 +148,7 @@ My theme is: [describe your theme — e.g. "Japanese forests in all four seasons
 
 Please update the download script in scripts/ to search for photos matching my theme,
 download 50 for each time period (morning, afternoon, evening), save them to the correct
-image folders, and update images/fallback-meta.json with the real location, photographer
+image folders, and update images/photos.json with the real location, photographer
 name, and attribution links from the API response.
 ```
 
@@ -152,7 +159,7 @@ I have my own photos ready. I've placed them in images/morning/, images/afternoo
 and images/evening/ following the naming convention (morning-01.jpg, etc.).
 There are [X] in morning, [X] in afternoon, [X] in evening.
 
-Please update images/fallback-meta.json to match. For each photo, use the filename as
+Please update images/photos.json to match. For each photo, use the filename as
 the url, set the location to whatever's visible in the photo if you can tell, and use
 my name ([your name]) and website ([your URL]) for the photographer credit.
 ```
@@ -203,31 +210,27 @@ It will open at `http://localhost:3000/newtab.html`. This is useful for quickly 
 
 ## Loading it into Chrome
 
-Once your changes are ready, you need to package the extension and load it. Give Claude Code or Cursor this prompt:
+The TypeScript source files in `src/` need to be compiled to JavaScript before Chrome can run them. Ask Claude Code:
 
 ```
-Please create a zip of this extension ready for loading into Chrome. Exclude node_modules/,
-scripts/, .git/, and any dev files that shouldn't be in a Chrome extension package.
-Name the zip after the extension name in manifest.json.
+Please build the extension and load it into Chrome.
 ```
 
-Then:
+Or do it manually:
 
-1. Unzip the zip file somewhere on your computer
+1. Run `npm run build` in the project folder — this compiles `src/` to `.js` files
 2. Open Chrome and go to `chrome://extensions`
 3. Turn on Developer mode (toggle, top right)
-4. Click **Load unpacked** → select the unzipped folder
+4. Click **Load unpacked** → select the project folder
 5. Open a new tab
 
-For personal use you can skip the zip entirely — just click **Load unpacked** and point it directly at the project folder.
-
-After making any changes to the code, hit the refresh icon next to your extension on `chrome://extensions` to reload it.
+After making any changes to the TypeScript source files, run `npm run build` again, then hit the refresh icon next to your extension on `chrome://extensions`.
 
 ---
 
 ## Setting up test coverage with Codecov
 
-This project already has a test suite in `tests/` — covering greeting logic in `src/greetings.ts`. Run them with `npm test`.
+This project already has a test suite in `tests/` — covering the clock formatter, photo period logic, settings read/write, and greeting selection. Run them with `npm test`.
 
 **What is Codecov?** Codecov is a free dashboard that shows you at a glance how much of your code is actually covered by tests — basically a confidence score that nothing is quietly broken. It hooks into your GitHub repo, so every time you push a change it automatically runs the tests and reports back.
 
